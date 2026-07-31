@@ -1,0 +1,82 @@
+clc;
+clear;
+close;
+
+// Define Laplace variable
+s = poly(0,'s');
+
+// Transfer Function
+H = syslin('c',100/(s^2 + 10*s + 100));
+
+// Natural frequency and damping ratio
+wn = 10;
+zeta = 0.5;
+
+// Frequency range (rad/s)
+w = logspace(-1,3,1000);
+
+// Bode Plot
+clf();
+bode(H,w);
+xtitle("Bode Plot of H(s)=100/(s^2+10s+100)");
+
+// Display system parameters
+disp("Natural Frequency (wn) = "+string(wn)+" rad/s");
+disp("Damping Ratio (zeta) = "+string(zeta));
+
+// -------------------------------------------------
+// Compute Magnitude and Phase Data
+// -------------------------------------------------
+[frq,db,phi] = bode(H,w);
+
+// Find -3 dB frequency
+target = -3;
+[err,idx] = min(abs(db - target));
+
+wc = frq(idx);
+phase_wc = phi(idx);
+
+disp(" ");
+disp("Approximate -3 dB Cutoff Frequency = ");
+disp(wc);
+
+disp("Phase at -3 dB Frequency (degrees) = ");
+disp(phase_wc);
+
+// -------------------------------------------------
+// Magnitude Plot with Annotations
+// -------------------------------------------------
+scf(2);
+
+subplot(2,1,1)
+plot(frq,db);
+xgrid();
+xlabel("Frequency (rad/s)");
+ylabel("Magnitude (dB)");
+title("Magnitude Response");
+
+xpoly([wc wc],[min(db) max(db)],"lines");
+xstring(wc,-3,...
+"-3 dB @ "+string(round(wc*100)/100)+" rad/s");
+
+xpoly([wn wn],[min(db) max(db)],"lines");
+xstring(wn,max(db)-5,...
+"wn = 10 rad/s");
+
+// -------------------------------------------------
+// Phase Plot with Annotation
+// -------------------------------------------------
+subplot(2,1,2)
+plot(frq,phi);
+xgrid();
+xlabel("Frequency (rad/s)");
+ylabel("Phase (deg)");
+title("Phase Response");
+
+xpoly([wc wc],[min(phi) max(phi)],"lines");
+xstring(wc,phase_wc,...
+"Phase = "+string(round(phase_wc))+" deg");
+
+// Display damping ratio
+disp("Damping Ratio = ");
+disp(zeta);
