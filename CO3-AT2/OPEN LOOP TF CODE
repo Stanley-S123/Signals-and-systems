@@ -1,0 +1,69 @@
+clc;
+clear;
+close;
+
+//--------------------------------------------------
+// Open Loop Transfer Function
+//--------------------------------------------------
+s = poly(0,'s');
+
+G = syslin('c',1/(s*(s+2)*(s+4)));
+
+//--------------------------------------------------
+// Root Locus
+//--------------------------------------------------
+scf(1);
+evans(G,50);
+
+xtitle("Root Locus of G(s)=K/[s(s+2)(s+4)]");
+xgrid();
+
+//--------------------------------------------------
+// Critical Gain using Routh-Hurwitz
+//--------------------------------------------------
+Kcrit = 48;
+
+disp("Critical Gain (Marginal Stability) = ");
+disp(Kcrit);
+
+//--------------------------------------------------
+// Closed Loop Characteristic Polynomial
+//--------------------------------------------------
+P = s^3 + 6*s^2 + 8*s + Kcrit;
+
+disp("Characteristic Polynomial:");
+disp(P);
+
+//--------------------------------------------------
+// Closed Loop Poles at K = 48
+//--------------------------------------------------
+poles = roots(P);
+
+disp("Closed Loop Poles at K = 48");
+disp(poles);
+
+//--------------------------------------------------
+// Plot Poles
+//--------------------------------------------------
+scf(2);
+
+plot(real(poles),imag(poles),'ro');
+
+xlabel("Real Axis");
+ylabel("Imaginary Axis");
+title("Closed Loop Poles at Critical Gain");
+
+xgrid();
+
+// Label poles
+for i=1:length(poles)
+    xstring(real(poles(i)), imag(poles(i)), string(poles(i)));
+end
+
+//--------------------------------------------------
+// Display Results
+//--------------------------------------------------
+disp("Expected Poles:");
+disp("-6");
+disp("+j*2.828");
+disp("-j*2.828");
